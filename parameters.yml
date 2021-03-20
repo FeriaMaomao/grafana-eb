@@ -1,0 +1,4 @@
+- ParameterKey: VpcId
+  ParameterValue: vpc-3a3e8347
+- ParameterKey: Subnets
+  ParameterValue: 'subnet-38174d36, subnet-0b4b7b46'
