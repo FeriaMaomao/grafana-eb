@@ -1,50 +1,63 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: AWS CloudFormation Docker Test
-Parameters:
-  Subnets:
-    Type: CommaDelimitedList
-    Description: Subnets
-  VpcId:
-    Type: String
-    Description: VpcId
+# Parameters:
+#   Subnets:
+#     Type: CommaDelimitedList
+#     Description: Subnets
+#   VpcId:
+#     Type: String
+#     Description: VpcId
 Resources:
-  GrafanaBeanstalkapp:
+  Application:
     Type: 'AWS::ElasticBeanstalk::Application'
     Properties:
+      ApplicationName: GrafanaBeanstalkapp
       Description: AWS Elastic Beanstalk Docker Sample Application
-      ApplicationVersions:
-        - VersionLabel: Initial Version
-          Description: Version 1.0
-          SourceBundle:
-            S3Bucket: tv-s3-bucket
-            S3Key: Dockerrun.aws.json
-  GrafanaBeanstalkEnv:
+  ApplicationVersion:
+    Type: AWS::ElasticBeanstalk::ApplicationVersion
+    Properties:
+      ApplicationName: !Ref Application
+      Description: Version 1.0
+      SourceBundle:
+        S3Bucket: tv-s3-bucket
+        S3Key: Dockerrun.aws.json
+  ApplicationEnv:
     Type: 'AWS::ElasticBeanstalk::Environment'
     Properties:
-      ApplicationName:
-        Ref: GrafanaBeanstalkapp
+      ApplicationName: !Ref Application
       Description: AWS Elastic Beanstalk Environment running Docker
       SolutionStackName: 64bit Amazon Linux 2 v3.2.5 running Docker
+      VersionLabel: !Ref ApplicationVersion
       OptionSettings:
         - Namespace: 'aws:autoscaling:launchconfiguration'
           OptionName: IamInstanceProfile
           Value: aws-elasticbeanstalk-ec2-role
-        - Namespace: 'aws:autoscaling:launchconfiguration'
-          OptionName: InstanceType
-          Value: t2.micro
-        - Namespace: 'aws:ec2:vpc'
-          OptionName: VPCId
-          Value:
-            Ref: VpcId
-        - Namespace: 'aws:ec2:vpc'
-          OptionName: Subnets
-          Value:
-            'Fn::Join':
-              - ','
-              - Ref: Subnets
-        - Namespace: 'aws:ec2:vpc'
-          OptionName: ELBSubnets
-          Value:
-            'Fn::Select':
-              - '1'
-              - Ref: Subnets
+        # - Namespace: 'aws:autoscaling:launchconfiguration'
+        #   OptionName: InstanceType
+        #   Value: t2.micro
+        # - Namespace: 'aws:ec2:vpc'
+        #   OptionName: VPCId
+        #   Value:
+        #     Ref: VpcId
+        # - Namespace: 'aws:ec2:vpc'
+        #   OptionName: Subnets
+        #   Value:
+        #     'Fn::Join':
+        #       - ','
+        #       - Ref: Subnets
+        # - Namespace: 'aws:ec2:vpc'
+        #   OptionName: ELBSubnets
+        #   Value:
+        #     'Fn::Select':
+        #       - '1'
+        #       - Ref: Subnets
+  # Outputs:
+  # URL:
+  #   Description: The URL of the Elastic Beanstalk environment
+  #   Value:
+  #     Fn::Join:
+  #     - ''
+  #     - - http://
+  #       - Fn::GetAtt:
+  #         - SampleEnvironment
+  #         - EndpointURL
