@@ -1,6 +1,24 @@
 {
     "AWSTemplateFormatVersion" : "2010-09-09",
     "Description" : "AWS CloudFormation Docker Test",
+    "Parameters" : {
+      "Subnets": {
+        "Type": "AWS::EC2::Subnet",
+        "Description": "Subnets"
+      },
+      "VpcId": {
+        "Type": "AWS::EC2::VPC",
+        "Description": "VPC"
+      },
+      "S3Bucket": {
+        "Type": "AWS::S3::Bucket",
+        "Description": "tv-s3-bucket"
+      },
+      "S3Key": {
+        "Type": "AWS::S3::Bucket",
+        "Description": "S3 Key name"
+      }
+    },
     "Resources" : {
       "GrafanaBeanstalkapp" : {
         "Type" : "AWS::ElasticBeanstalk::Application",
@@ -10,8 +28,8 @@
             "VersionLabel" : "Initial Version",
             "Description" : "Version 1.0",
             "SourceBundle" : {
-              "S3Bucket" : "tv-s3-bucket",
-              "S3Key": "Dockerrun.aws.json"
+              "S3Bucket" : {"Ref": "S3Bucket"},
+              "S3Key": {"Ref": "S3Key"}
             }
           }]
         }
@@ -21,7 +39,33 @@
         "Properties" : {
           "ApplicationName" : { "Ref" : "GrafanaBeanstalkapp" },
           "Description" :  "AWS Elastic Beanstalk Environment running Docker",
-          "SolutionStackName" : "64bit Amazon Linux 2 v3.2.5 running Docker"
+          "SolutionStackName" : "64bit Amazon Linux 2 v3.2.5 running Docker",
+          "OptionSettings": [
+            {
+              "Namespace": "aws:autoscaling:launchconfiguration",
+              "OptionName": "InstanceType",
+              "Value": "t2.micro"
+            },
+            {
+              "Namespace": "aws:ec2:vpc",
+              "OptionName": "VPCId",
+              "Value": { "Ref" : "VpcId" }
+            },
+            {
+              "Namespace": "aws:ec2:vpc",
+              "OptionName": "Subnets",
+              "Value" : {
+                "Fn::Join": [",", { "Ref" : "Subnets" }]
+              }
+            },
+            {
+              "Namespace": "aws:ec2:vpc",
+              "OptionName": "ELBSubnets",
+              "Value" : {
+                "Fn::Select": ["0", {"Ref" : "Subnets" }]
+              }
+            }
+          ]
         }
      }
    } 

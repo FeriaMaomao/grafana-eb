@@ -1,0 +1,18 @@
+[
+    {
+      "ParameterKey": "VpcId",
+      "ParameterValue": "default-vpc-id"
+    },
+    {
+      "ParameterKey": "Subnets",
+      "ParameterValue": "subnets-1, subnet-2"
+    },
+    {
+      "ParameterKey": "S3Key",
+      "ParameterValue": "Dockerrun.aws.json"
+    },
+    {
+      "ParameterKey": "S3Bucket",
+      "ParameterValue": "tv-s3-bucket"
+    }
+  ]
